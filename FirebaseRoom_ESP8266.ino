@@ -21,7 +21,7 @@
 #include <FirebaseArduino.h>
 
 // Set these to run example. 이 부분은 구글 firebase 페이지에 있는 본인의 계정에 만들어진 프로젝트의 내용을 참고하셔야 합니다.
-#define FIREBASE_HOST "Database URL without '''https://''' and trailing '''/'''"
+#define FIREBASE_HOST "Database URL without 'https://' and trailing '/'"
 #define FIREBASE_AUTH "⚙ > Project Settings > Service Accounts > Legacy Credentials > Database Secrets > SHOW"
 #define WIFI_SSID "Your Wi-Fi SSID"
 #define WIFI_PASSWORD "Your Wi-Fi Password"
