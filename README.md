@@ -17,6 +17,9 @@ Example client application for displaying sensor value from arduino firebase dat
 - Change firebase config with your credentials
 - Run HTML file on your browser
 
+# Example Page
+[Example Page](https://mtinet.github.io/arduino-firebase-web/firebase-arduino-web.html)
+
 # References
  - http://dirakit.com/project/103
  - https://github.com/googlesamples/firebase-arduino
