@@ -21,10 +21,11 @@
 #include <FirebaseArduino.h>
 
 // Set these to run example.
-#define FIREBASE_HOST "example.firebaseio.com"
-#define FIREBASE_AUTH "token_or_secret"
-#define WIFI_SSID "SSID"
-#define WIFI_PASSWORD "PASSWORD"
+#define FIREBASE_HOST "Database URL without https:// and trailing /"
+#define FIREBASE_AUTH "⚙ > Project Settings > Service Accounts > Legacy Credentials > Database Secrets > SHOW"
+#define WIFI_SSID "Your Wi-Fi SSID"
+#define WIFI_PASSWORD "Your Wi-Fi Password"
+
 
 const int grovePowerPin = 15;
 const int vibratorPin = 5;
