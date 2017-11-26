@@ -1,141 +1,84 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Firebase Client</title>
-    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-    <style>
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
+// Copyright 2015 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 
-    .switch input {display:none;}
+// FirebaseDemo_ESP8266 is a sample that demo the different functions
+// of the FirebaseArduino API.
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
+#include <ESP8266WiFi.h>
+#include <FirebaseArduino.h>
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
+// Set these to run example.
+#define FIREBASE_HOST "esp8266-481c3.firebaseio.com"
+#define FIREBASE_AUTH "kwgW8rLFMnQRDHjruQBtNpR14j6BmxOpoPD4GgYs"
+#define WIFI_SSID "U+Net454C"
+#define WIFI_PASSWORD "DDAE014478"
 
-    input:checked + .slider {
-      background-color: #2196F3;
-    }
+const int grovePowerPin = 15;
+const int vibratorPin = 5;
+const int lightSensorPin = A0;
+const int ledPin = 12;
+const int buttonPin = 14;
+const int fanPin = 13;
 
-    input:focus + .slider {
-      box-shadow: 0 0 1px #2196F3;
-    }
+void setup() {
+  Serial.begin(9600);
 
-    input:checked + .slider:before {
-      -webkit-transform: translateX(26px);
-      -ms-transform: translateX(26px);
-      transform: translateX(26px);
-    }
+  pinMode(grovePowerPin, OUTPUT);
+  digitalWrite(grovePowerPin, HIGH);
 
-    /* Rounded sliders */
-    .slider.round {
-      border-radius: 34px;
-    }
+  pinMode(vibratorPin, OUTPUT);
+  pinMode(lightSensorPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  pinMode(fanPin, OUTPUT);
 
-    .slider.round:before {
-      border-radius: 50%;
-    }
-    </style>
+  // connect to wifi.
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
 
-    <script src="https://www.gstatic.com/firebasejs/3.5.3/firebase.js"></script>
-    <script>
-      // Initialize Firebase
-      var config = {
-        apiKey: "AIzaSyCM8pzm6k84GfKM5sPnRx6OOW_Lut9RAGg",
-        authDomain: "esp8266-481c3.firebaseapp.com",
-        databaseURL: "https://esp8266-481c3.firebaseio.com",
-        projectId: "esp8266-481c3",
-        storageBucket: "esp8266-481c3.appspot.com",
-        messagingSenderId: "782537917360"
-      };
-      firebase.initializeApp(config);
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+  Firebase.set("pushbutton", 0);
+  Firebase.set("sunlight", 0);
+  Firebase.set("redlight", 0);
+  Firebase.set("cooldown", 0);
+  Firebase.set("brrr", 0);
+}
 
-      // Get a reference to the database service
-      var db = firebase.database();
+int button = 0;
+float light = 0.0;
 
-      var sunlight = db.ref('sunlight');
-      sunlight.on('value', function(snapshot) {
-        console.log("sunlight: "+snapshot.val());
-        move(document.querySelector("#sunlight > div"), parseInt((snapshot.val()/1010)*100));
-      });
-
-      var pushbutton = db.ref('pushbutton');
-      pushbutton.on('value', function(snapshot) {
-        console.log("pushbutton: "+snapshot.val());
-        document.querySelector("#pushbutton > input").checked = snapshot.val();
-      });
-
-      var redlight = db.ref('redlight');
-      redlight.on('value', function(snapshot) {
-        console.log("redlight: "+snapshot.val());
-        if(snapshot.val()) document.querySelector("#redlight").style.background = 'rgb(255, 100, 100)';
-        if(!snapshot.val()) document.querySelector("#redlight").style.background = 'transparent';
-        document.querySelector("#redlightbtn > input").checked = snapshot.val();
-      });
-
-      function move(elem, val) {
-          var width = parseInt(elem.style.width);
-          var id = setInterval(frame, 10);
-          function frame() {
-              if (width == val) {
-                  clearInterval(id);
-              } else {
-                  if(val > width) width++;
-                  else if(val < width) width--;
-                  if(width >= 100 || width <= 0) clearInterval(id);
-
-                  elem.style.width = width + '%';
-                  elem.querySelector("div").innerText = elem.style.width;
-              }
-          }
-      }
-      </script>
-  </head>
-  <body style="margin:2em;">
-    <h3>Sunlight</h3>
-    <div id="sunlight" class="w3-progress-container w3-pale-blue">
-      <div class="w3-progressbar w3-blue" style="width:35%">
-        <div class="w3-center w3-text-white">35%</div>
-      </div>
-    </div>
-
-    <h3>Push Button</h3>
-    <label id="pushbutton" class="switch">
-      <input type="checkbox" onclick="pushbutton.set(+this.checked)">
-      <div class="slider round"></div>
-    </label>
-
-    <h3>Red Light</h3>
-    <label id="redlightbtn" class="switch">
-      <input type="checkbox" onclick="redlight.set(+this.checked)">
-      <div class="slider round"></div>
-    </label>
-    <div id="redlight" style="width:80px;height:80px;border:1px solid red"></div>
-    <br/>
-  </body>
-</html>
+void loop() {
+  digitalWrite(ledPin, Firebase.getInt("redlight"));
+  digitalWrite(fanPin, Firebase.getInt("cooldown"));
+  digitalWrite(vibratorPin, Firebase.getInt("brrr"));
+  int newButton = digitalRead(buttonPin);
+  if (newButton != button) {
+    button = newButton;
+    Firebase.setInt("pushbutton", button);
+  }
+  float newLight = analogRead(lightSensorPin);
+  if (abs(newLight - light) > 100) {
+    light = newLight;
+    Firebase.setFloat("sunlight", light);
+  }
+  delay(200);
+}
